@@ -1,0 +1,48 @@
+take home commands
+
+----- docker compose -----
+docker compose up
+docker compose down
+docker compose logs -f
+
+** to remove volumes as well **
+
+docker compose down --v
+
+
+-----  access db  ----
+docker compose exec db psql -U user -d lac_fullstack_dev
+
+----- db migrations ------
+
+create migration files
+docker-compose run --rm api migrate create -ext sql -dir migrations -seq init_schema
+
+run migrations manually
+docker-compose run --rm api migrate -path ./migrations -database $DATABASE_URL up
+docker-compose run --rm api migrate -path ./migrations -database $DATABASE_URL down
+
+
+
+------ install python dependancies manually ----------
+
+pip install -r requirements.txt
+
+
+----- running tests -------
+
+a test file
+python -m unittest tests/test_routes.py
+pytest tests/test_routes.py
+
+all tests
+python -m unittest discover
+pytest
+
+by class or method
+python -m unittest tests.test_routes.TestClassName
+pytest tests/test_routes.py::TestClassName
+
+test inside of class
+python -m unittest tests.test_routes.TestClassName.test_method_name
+pytest tests/test_routes.py::TestClassName::test_method_name
