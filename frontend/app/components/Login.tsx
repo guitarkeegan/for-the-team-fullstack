@@ -2,26 +2,26 @@
 import { useRouter } from "next/navigation";    
 import { useState } from "react";
 export default function Login() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const router = useRouter();
 
   const user1 = {
-    email: "user_one",
+    username: "user_one",
     password: "password123",
   };
 
   const user2 = {
-    email: "user_two",
+    username: "user_two",
     password: "123password",
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (email === user1.email && password === user1.password) {
+    if (username === user1.username && password === user1.password) {
       router.replace("/coach-dash");
-    } else if (email === user2.email && password === user2.password) {
+    } else if (username === user2.username && password === user2.password) {
       router.replace("/medical-dash");
     } else {
         setErrorMsg("Invalid email or password");
@@ -41,8 +41,9 @@ export default function Login() {
           type="text"
           id="username"
           name="username"
+          onChange={(e) => setUsername(e.target.value)}
           required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-md focus:border-teamBlue focus:ring focus:ring-teamBlue focus:ring-opacity-50"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-md focus:border-teamBlue focus:ring focus:ring-teamBlue focus:ring-opacity-50 text-gray-800 font-sans"
         />
       </div>
       <div>
@@ -56,8 +57,9 @@ export default function Login() {
           type="password"
           id="password"
           name="password"
+          onChange={(e) => setPassword(e.target.value)}
           required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-md focus:border-teamBlue focus:ring focus:ring-teamBlue focus:ring-opacity-50"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-md focus:border-teamBlue focus:ring focus:ring-teamBlue focus:ring-opacity-50 text-gray-800 font-sans"
         />
       </div>
       <button
