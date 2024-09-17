@@ -46,11 +46,6 @@ def index():
     teams_list = [{"team_id": team.team_id, "team_name": team.team_name} for team in teams]  # Convert to list of dictionaries
     return jsonify(teams_list)  # Use jsonify to return JSON response
 
-# basic queries
-@app.route('/v1/basic/win_loss', methods=['GET'])
-def win_loss():
-    pass
-
 
 
 
