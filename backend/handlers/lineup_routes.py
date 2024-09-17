@@ -13,20 +13,34 @@ def create_lineup_bp(db_session):
         last_team_id = request.args.get('last_team_id', type=int)
         last_lineup_num = request.args.get('last_lineup_num', type=int)
 
+        # Get optional filter parameters
+        game_id = request.args.get('game_id', type=int)
+        player_id = request.args.get('player_id', type=int)
+
         # Initialize parameters dictionary
         params = {'page_size': page_size}
 
-        # Build the WHERE clause for keyset pagination
-        where_clause = ""
+        # Build the WHERE clause for keyset pagination and optional filters
+        where_clauses = []
         if all(v is not None for v in [last_game_id, last_team_id, last_lineup_num]):
-            where_clause = """
-            WHERE (game_id, team_id, lineup_num) > (:last_game_id, :last_team_id, :last_lineup_num)
-            """
+            where_clauses.append("(l.game_id, l.team_id, l.lineup_num) > (:last_game_id, :last_team_id, :last_lineup_num)")
             params.update({
                 'last_game_id': last_game_id,
                 'last_team_id': last_team_id,
                 'last_lineup_num': last_lineup_num
             })
+
+        if game_id:
+            where_clauses.append("l.game_id = :game_id")
+            params['game_id'] = game_id
+
+        if player_id:
+            where_clauses.append("l.player_id = :player_id")
+            params['player_id'] = player_id
+
+        where_clause = " AND ".join(where_clauses)
+        if where_clause:
+            where_clause = "WHERE " + where_clause
 
         query = f"""
             WITH lineup_data AS (

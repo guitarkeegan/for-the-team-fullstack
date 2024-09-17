@@ -97,6 +97,10 @@ http://localhost:5000/schedule/most-3-in-4s/2024-01-01/2024-12-31
 
 http://localhost:5000/lineups/wide
 
+To filter by game: /lineups/wide?game_id=123
+To filter by player: /lineups/wide?player_id=456
+To filter by both: /lineups/wide?game_id=123&player_id=456
+
 next page
 
 /lineups/wide?page_size=50&last_game_id=1&last_team_id=1&last_lineup_num=1
