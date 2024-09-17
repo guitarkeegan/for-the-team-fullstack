@@ -1,14 +1,19 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from 'next/navigation';
 
 interface FeatureProps {
   title: string;
   imageSrc: string;
-  link: string;
+  coachLink: string;
+  medicalLink: string;
 }
 
-export function FeatureCard({ title, imageSrc, link }: FeatureProps) {
+export function FeatureCard({ title, imageSrc, coachLink, medicalLink }: FeatureProps) {
+  const pathname = usePathname();
+  const link = pathname.startsWith('/coach-dash') ? coachLink : medicalLink;
+
   return (
     <Link href={link} className="block">
       <div className="relative w-64 h-64 rounded-full overflow-hidden group cursor-pointer">
@@ -29,9 +34,24 @@ export function FeatureCard({ title, imageSrc, link }: FeatureProps) {
 
 export default function Features() {
   const features = [
-    { title: "Team Schedule", imageSrc: "/images/player-performance.webp", link: "/coach-dash/team-schedule" },
-    { title: "Team Strategy", imageSrc: "/images/team-strategy.webp", link: "#" },
-    { title: "Training Schedule", imageSrc: "/images/training-schedule.webp", link: "#" },
+    { 
+      title: "Team Schedule", 
+      imageSrc: "/images/player-performance.webp", 
+      coachLink: "/coach-dash/team-schedule",
+      medicalLink: "/medical-dash/team-schedule"
+    },
+    { 
+      title: "Team Strategy", 
+      imageSrc: "/images/team-strategy.webp", 
+      coachLink: "#",
+      medicalLink: "#"
+    },
+    { 
+      title: "Training Schedule", 
+      imageSrc: "/images/training-schedule.webp", 
+      coachLink: "#",
+      medicalLink: "#"
+    },
   ];
 
   return (

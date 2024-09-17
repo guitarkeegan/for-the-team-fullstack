@@ -1,0 +1,276 @@
+--- team routes ---
+
+http://localhost:5000/teams/
+
+[
+{
+"games_played": 16,
+"losses": 2,
+"team_name": "New York Knicks",
+"win_percentage": "0.875",
+"wins": 14
+},
+{
+"games_played": 13,
+"losses": 2,
+"team_name": "Cleveland Cavaliers",
+"win_percentage": "0.846",
+"wins": 11
+}
+]
+
+http://localhost:5000/teams/2024-01
+
+[
+{
+"away_games_in_month": 8,
+"games_played": 17,
+"games_played_in_month": 17,
+"home_games_in_month": 9,
+"losses": 10,
+"team_name": "Houston Rockets",
+"win_percentage": "0.412",
+"wins": 7
+},
+{
+"away_games_in_month": 8,
+"games_played": 17,
+"games_played_in_month": 17,
+"home_games_in_month": 9,
+"losses": 7,
+"team_name": "Indiana Pacers",
+"win_percentage": "0.588",
+"wins": 10
+}
+]
+
+http://localhost:5000/schedule/most-b2b
+
+[
+{
+"away_away_b2b": 1,
+"away_home_b2b": 2,
+"home_away_b2b": 2,
+"home_home_b2b": 0,
+"team_name": "Oklahoma City Thunder",
+"total_back_to_backs": 5
+},
+{
+"away_away_b2b": 1,
+"away_home_b2b": 0,
+"home_away_b2b": 2,
+"home_home_b2b": 1,
+"team_name": "Boston Celtics",
+"total_back_to_backs": 4
+}
+]
+
+http://localhost:5000/schedule/most-rest/2024-01-01/2024-12-31
+
+[
+{
+"game1_date": "Mon, 15 Jan 2024",
+"game2_date": "Wed, 24 Jan 2024",
+"max_rest_days": 9,
+"team_name": "Golden State Warriors"
+},
+{
+"game1_date": "Wed, 17 Jan 2024",
+"game2_date": "Mon, 22 Jan 2024",
+"max_rest_days": 5,
+"team_name": "Dallas Mavericks"
+}
+]
+2
+http://localhost:5000/schedule/most-3-in-4s/2024-01-01/2024-12-31
+
+[
+  {
+    "team_name": "Indiana Pacers",
+    "three_in_four_count": 4
+  },
+  {
+    "team_name": "Orlando Magic",
+    "three_in_four_count": 4
+  }
+]
+
+http://localhost:5000/lineups/wide
+
+next page
+
+/lineups/wide?page_size=50&last_game_id=1&last_team_id=1&last_lineup_num=1
+
+{
+"lineups": [
+{
+"game_id": 8,
+"lineup_num": 1,
+"period": 1,
+"player1_id": 201935,
+"player1_name": "James Harden",
+"player1_position": "PG",
+"player2_id": 202331,
+"player2_name": "Paul George",
+"player2_position": "SF",
+"player3_id": 202695,
+"player3_name": "Kawhi Leonard",
+"player3_position": "SF",
+"player4_id": 1629611,
+"player4_name": "Terance Mann",
+"player4_position": "SF",
+"player5_id": 1627826,
+"player5_name": "Ivica Zubac",
+"player5_position": "C",
+"team_id": 1610612746,
+"time_in": "720.0",
+"time_out": "418.0"
+},
+{
+"game_id": 8,
+"lineup_num": 2,
+"period": 1,
+"player1_id": 201566,
+"player1_name": "Russell Westbrook",
+"player1_position": "PG",
+"player2_id": 202331,
+"player2_name": "Paul George",
+"player2_position": "SF",
+"player3_id": 202695,
+"player3_name": "Kawhi Leonard",
+"player3_position": "SF",
+"player4_id": 1629611,
+"player4_name": "Terance Mann",
+"player4_position": "SF",
+"player5_id": 1627826,
+"player5_name": "Ivica Zubac",
+"player5_position": "C",
+"team_id": 1610612746,
+"time_in": "418.0",
+"time_out": "334.0"
+}
+],
+"pagination": {
+"next_cursor": {
+"last_game_id": 17,
+"last_lineup_num": 4,
+"last_team_id": 1610612737
+},
+"page_size": 50
+}
+}
+
+
+http://localhost:5000/lineups/player-stints
+
+/lineups/player-stints?page_size=50&last_game_date=2024-06-01&last_team_name=
+
+
+{
+"pagination": {
+"next_cursor": {
+"last_game_date": "2024-01-01T15:00:00",
+"last_period": 1,
+"last_player_name": "Julius Randle",
+"last_stint_number": 1,
+"last_team_name": "New York Knicks"
+},
+"page_size": 50
+},
+"stints": [
+{
+"game_date": "Mon, 01 Jan 2024 15:00:00 GMT",
+"opponent": "New York Knicks",
+"period": 1,
+"player_name": "Anthony Edwards",
+"stint_end_time": "0:00",
+"stint_number": 1,
+"stint_start_time": "12:00",
+"team": "Minnesota Timberwolves"
+},
+{
+"game_date": "Mon, 01 Jan 2024 15:00:00 GMT",
+"opponent": "New York Knicks",
+"period": 2,
+"player_name": "Anthony Edwards",
+"stint_end_time": "0:00",
+"stint_number": 2,
+"stint_start_time": "6:21",
+"team": "Minnesota Timberwolves"
+}
+]
+}
+
+http://localhost:5000/lineups/stint-averages
+
+next page
+
+/lineups/stint-averages?page_size=50&last_player_name=
+
+{
+"pagination": {
+"next_cursor": {
+"last_player_name": "Braxton Key"
+},
+"page_size": 50
+},
+"stint_averages": [
+{
+"avg_stint_length": "06:16",
+"avg_stints_per_game": "2.60",
+"player_name": "Aaron Gordon"
+},
+{
+"avg_stint_length": "06:17",
+"avg_stints_per_game": "2.25",
+"player_name": "Aaron Holiday"
+}
+]
+}
+
+
+http://localhost:5000/lineups/win-loss-stints
+
+next page
+
+/lineups/win-loss-stints?page_size=50&last_player_name=
+
+
+{
+"pagination": {
+"next_cursor": {
+"last_player_name": "Braxton Key"
+},
+"page_size": 50
+},
+"win_loss_stints": [
+{
+"avg_stint_length": "06:33",
+"avg_stint_length_diff": "00:45",
+"avg_stint_length_losses": "06:05",
+"avg_stint_length_wins": "06:50",
+"avg_stints_per_game": "2.60",
+"avg_stints_per_game_diff": "-0.60",
+"avg_stints_per_game_losses": "3.00",
+"avg_stints_per_game_wins": "2.40",
+"player_name": "Aaron Gordon",
+"total_games": 15,
+"total_games_losses": 5,
+"total_games_wins": 10
+},
+{
+"avg_stint_length": "06:17",
+"avg_stint_length_diff": "00:51",
+"avg_stint_length_losses": "06:00",
+"avg_stint_length_wins": "06:52",
+"avg_stints_per_game": "2.13",
+"avg_stints_per_game_diff": "-0.47",
+"avg_stints_per_game_losses": "2.30",
+"avg_stints_per_game_wins": "1.83",
+"player_name": "Aaron Holiday",
+"total_games": 16,
+"total_games_losses": 10,
+"total_games_wins": 6
+}
+]
+}

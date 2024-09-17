@@ -15,9 +15,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    profiles: ["backend", "frontend"]
 
   api:
     build: ./backend
+    volumes:
+      - ./backend:/app
     depends_on:
       db:
         condition: service_healthy
@@ -28,19 +31,20 @@ services:
       - FLASK_DEBUG=1
     ports:
       - "5000:5000"
-    volumes:
-      - ./backend:/app
+    profiles: ["backend"]
 
   frontend:
     build: ./frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     ports:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://api:5000
     depends_on:
       - api
-    volumes:
-      - ./frontend:/app
+    profiles: ["frontend"]
 
 volumes:
   postgres_data:
