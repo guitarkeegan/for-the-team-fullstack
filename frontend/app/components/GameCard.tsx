@@ -1,34 +1,39 @@
 import React from 'react';
 
 interface GameCardProps {
+  id: string;
   date: string;
-  homeTeam: {
-    name: string;
-    score: number;
-  };
-  awayTeam: {
-    name: string;
-    score: number;
-  };
+  homeTeam?: { name: string; score: number };
+  awayTeam?: { name: string; score: number };
+  onClick?: () => void;
 }
 
-const GameCard: React.FC<GameCardProps> = ({ date, homeTeam, awayTeam }) => {
-  return (
-    <section className="bg-white rounded-lg shadow-md p-4 w-full max-w-sm">
-      <div className="text-sm font-sans font-bold text-gray-500 mb-2">{date}</div>
-      <div className="flex justify-between items-center">
-        <div className="flex flex-col items-center w-2/5 text-gray-700">
-          <div className="font-bold text-lg">{homeTeam.name}</div>
-          <div className="text-2xl font-bold mt-1">{homeTeam.score}</div>
-        </div>
-        <div className="text-xl font-bold text-gray-700">VS</div>
-        <div className="flex flex-col items-center w-2/5 text-gray-700">
-          <div className="font-bold text-lg">{awayTeam.name}</div>
-          <div className="text-2xl font-bold mt-1">{awayTeam.score}</div>
-        </div>
+const GameCard: React.FC<GameCardProps> = ({ id, date, homeTeam, awayTeam, onClick }) => {
+  if (!homeTeam || !awayTeam) {
+    return (
+      <div className="bg-red-100 p-4 rounded-lg">
+        Error: Incomplete game data for game {id}
       </div>
-    </section>
+    );
+  }
+
+  return (
+    <div 
+      className="bg-white p-4 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow duration-300"
+      onClick={onClick}
+    >
+      <div className="text-sm text-gray-500 mb-2">{date}</div>
+      <div className="flex justify-between items-center">
+        <div className="text-lg font-semibold">{homeTeam.name}</div>
+        <div className="text-xl font-bold">{homeTeam.score}</div>
+      </div>
+      <div className="flex justify-between items-center mt-2">
+        <div className="text-lg font-semibold">{awayTeam.name}</div>
+        <div className="text-xl font-bold">{awayTeam.score}</div>
+      </div>
+    </div>
   );
 };
 
 export default GameCard;
+

@@ -1,18 +1,13 @@
 import React from 'react'
 
 interface Player {
-  name: string
-  x: number
-  y: number
-}
-
-interface TeamProps {
-  players: Player[]
-  isHome: boolean
+  name: string;
+  team: string;
+  position: string;
 }
 
 interface BasketballCourtProps {
-  players?: Player[]
+  players: Player[];
 }
 
 const TShirt: React.FC<{ color: string }> = ({ color }) => (
@@ -24,30 +19,43 @@ const TShirt: React.FC<{ color: string }> = ({ color }) => (
   />
 )
 
-const Team: React.FC<TeamProps> = ({ players, isHome }) => (
-  <>
-    {players.map((player, index) => (
-      <g key={index} transform={`translate(${player.x}, ${player.y})`}>
-        <TShirt color={isHome ? "#ff0000" : "#0000ff"} />
-        <text
-          x="0"
-          y="25"
-          textAnchor="middle"
-          fill="#000000"
-          fontSize="10"
-          fontFamily="Arial, sans-serif"
-          fontWeight="bold"
-        >
-          {player.name}
-        </text>
-      </g>
-    ))}
-  </>
+const PlayerIcon: React.FC<{ player: Player; x: number; y: number }> = ({ player, x, y }) => (
+  <g transform={`translate(${x}, ${y})`}>
+    <TShirt color={player.team === 'home' ? "#ff0000" : "#0000ff"} />
+    <text
+      x="0"
+      y="25"
+      textAnchor="middle"
+      fill="#000000"
+      fontSize="10"
+      fontFamily="Arial, sans-serif"
+      fontWeight="bold"
+    >
+      {player.name}
+    </text>
+  </g>
 )
 
-export default function BasketballCourt({ players = [] }: BasketballCourtProps) {
-  const homeTeam = players.slice(0, 5);
-  const awayTeam = players.slice(5, 10);
+export default function BasketballCourt({ players }: BasketballCourtProps) {
+  const homeTeam = players.filter(player => player.team === 'home');
+  const awayTeam = players.filter(player => player.team === 'away');
+
+  // Predefined positions for 5 players on each half-court
+  const homePositions = [
+    { x: 100, y: 225 },
+    { x: 200, y: 225 },
+    { x: 150, y: 175 },
+    { x: 100, y: 125 },
+    { x: 200, y: 125 },
+  ];
+
+  const awayPositions = [
+    { x: 400, y: 75 },
+    { x: 500, y: 75 },
+    { x: 450, y: 125 },
+    { x: 400, y: 175 },
+    { x: 500, y: 175 },
+  ];
 
   return (
     <svg width="600" height="300" viewBox="0 0 600 300">
@@ -90,8 +98,22 @@ export default function BasketballCourt({ players = [] }: BasketballCourtProps) 
       <circle cx="570" cy="150" r="7.5" fill="none" stroke="#ff7f00" strokeWidth="2" />
 
       {/* Players */}
-      <Team players={homeTeam} isHome={true} />
-      <Team players={awayTeam} isHome={false} />
+      {homeTeam.map((player, index) => (
+        <PlayerIcon 
+          key={`home-${index}`} 
+          player={player} 
+          x={homePositions[index % 5].x} 
+          y={homePositions[index % 5].y} 
+        />
+      ))}
+      {awayTeam.map((player, index) => (
+        <PlayerIcon 
+          key={`away-${index}`} 
+          player={player} 
+          x={awayPositions[index % 5].x} 
+          y={awayPositions[index % 5].y} 
+        />
+      ))}
     </svg>
   )
 }

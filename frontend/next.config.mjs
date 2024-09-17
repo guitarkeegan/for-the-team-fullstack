@@ -8,6 +8,9 @@ const nextConfig = {
       },
     ];
   },
+  env: {
+    NEXT_PUBLIC_TEAM_ID: process.env.NEXT_PUBLIC_TEAM_ID,
+  },
 };
 
 export default nextConfig;

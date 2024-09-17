@@ -1,11 +1,11 @@
 import React from 'react';
 
-interface TimeRangeProps {
-  startTime: number; // Time in seconds
-  endTime: number; // Time in seconds
+type TimeRangeProps = {
+  startTime: number;
+  endTime: number;
   isActive: boolean;
   onClick: () => void;
-}
+};
 
 const formatTime = (seconds: number): string => {
   const minutes = Math.floor(seconds / 60);
@@ -14,19 +14,17 @@ const formatTime = (seconds: number): string => {
 };
 
 const TimeRange: React.FC<TimeRangeProps> = ({ startTime, endTime, isActive, onClick }) => {
+  const displayStartTime = formatTime(720 - startTime);
+  const displayEndTime = formatTime(720 - endTime);
+
   return (
     <button
+      className={`px-2 py-1 rounded ${
+        isActive ? 'bg-teamBlue text-white' : 'bg-gray-200 text-gray-800'
+      }`}
       onClick={onClick}
-      className={`
-        px-3 py-1 rounded-full
-        text-sm font-bold
-        transition-all duration-300 ease-in-out
-        ${isActive 
-          ? 'bg-teamRed text-white shadow-md' 
-          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}
-      `}
     >
-      {formatTime(startTime)} - {formatTime(endTime)}
+      {displayStartTime} - {displayEndTime}
     </button>
   );
 };
