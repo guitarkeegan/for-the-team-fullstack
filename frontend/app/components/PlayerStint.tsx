@@ -18,24 +18,31 @@ const PlayerStint: React.FC<PlayerStintProps> = ({ playerName, playerPosition, s
   const periodBlocks = Array.from({ length: maxPeriod }, (_, i) => i + 1).map(period => {
     const periodStints = stints.filter(stint => stint.period === period);
     return (
-      <div key={period} className="flex flex-col mb-2">
+      <div key={period} className="flex flex-col mb-4">
         <div className="font-semibold mb-1">Period {period}</div>
-        <div className="h-8 bg-gray-200 relative">
-          {periodStints.map((stint, index) => {
-            const startPercent = (parseFloat(stint.startTime) / 720) * 100;
-            const endPercent = (parseFloat(stint.endTime) / 720) * 100;
-            const width = startPercent - endPercent;
-            return (
-              <div
-                key={index}
-                className="absolute h-full bg-blue-500"
-                style={{
-                  left: `${endPercent}%`,
-                  width: `${width}%`,
-                }}
-              ></div>
-            );
-          })}
+        <div className="relative">
+          <div className="h-8 bg-gray-200 relative">
+            {periodStints.map((stint, index) => {
+              const startPercent = (parseFloat(stint.startTime) / 720) * 100;
+              const endPercent = (parseFloat(stint.endTime) / 720) * 100;
+              const width = startPercent - endPercent;
+              return (
+                <div
+                  key={index}
+                  className="absolute h-full bg-blue-500"
+                  style={{
+                    left: `${endPercent}%`,
+                    width: `${width}%`,
+                  }}
+                ></div>
+              );
+            })}
+          </div>
+          <div className="flex justify-between text-xs mt-1">
+            <span>12:00</span>
+            <span>06:00</span>
+            <span>00:00</span>
+          </div>
         </div>
       </div>
     );
