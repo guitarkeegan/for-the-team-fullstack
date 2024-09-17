@@ -28,6 +28,8 @@ services:
       - FLASK_DEBUG=1
     ports:
       - "5000:5000"
+    volumes:
+      - ./backend:/app
 
   frontend:
     build: ./frontend
@@ -37,6 +39,8 @@ services:
       - NEXT_PUBLIC_API_URL=http://api:5000
     depends_on:
       - api
+    volumes:
+      - ./frontend:/app
 
 volumes:
   postgres_data:
