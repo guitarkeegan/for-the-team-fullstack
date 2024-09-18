@@ -7,6 +7,7 @@ export default function Login() {
   const [errorMsg, setErrorMsg] = useState("");
   const router = useRouter();
 
+  // TODO: implement auth!
   const user1 = {
     username: "user_one",
     password: "password123",
