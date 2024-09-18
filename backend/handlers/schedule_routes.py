@@ -7,6 +7,35 @@ from datetime import datetime
 def create_schedule_bp(db_session):
     schedule_bp = Blueprint('schedule', __name__, url_prefix='/schedule')
 
+    @schedule_bp.route('/past-games/<int:team_id>/<int:year>', methods=['GET'])
+    def past_games(team_id, year):
+        result = db_session.execute(text("""
+            SELECT 
+                gs.game_id,
+                gs.home_id,
+                gs.away_id,
+                gs.home_score,
+                gs.away_score,
+                gs.game_date,
+                home_team.team_name AS home_name,
+                away_team.team_name AS away_name
+            FROM 
+                game_schedule gs
+            JOIN 
+                teams home_team ON gs.home_id = home_team.team_id
+            JOIN 
+                teams away_team ON gs.away_id = away_team.team_id
+            WHERE 
+                (gs.home_id = :team_id OR gs.away_id = :team_id)
+                AND EXTRACT(YEAR FROM gs.game_date) = :year
+                AND gs.game_date < CURRENT_TIMESTAMP
+            ORDER BY 
+                gs.game_date ASC; 
+                                         """), {'team_id': team_id, 'year': year})
+        
+        return jsonify([dict(row) for row in result]), 200
+
+
     @schedule_bp.route('/most-b2b', methods=['GET'])
     def most_back_to_back_games():
 

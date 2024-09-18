@@ -26,10 +26,10 @@ const PlayerIcon: React.FC<{ player: Player; x: number; y: number }> = ({ player
       x="0"
       y="25"
       textAnchor="middle"
-      fill="#000000"
-      fontSize="10"
+      fill="#000"
+      fontSize="16"
       fontFamily="Arial, sans-serif"
-      fontWeight="bold"
+      fontWeight="bolder"
     >
       {player.name}
     </text>
@@ -50,10 +50,10 @@ export default function BasketballCourt({ players }: BasketballCourtProps) {
   ];
 
   const awayPositions = [
-    { x: 400, y: 75 },
+    { x: 350, y: 75 },
     { x: 500, y: 75 },
-    { x: 450, y: 125 },
-    { x: 400, y: 175 },
+    { x: 425, y: 125 },
+    { x: 350, y: 175 },
     { x: 500, y: 175 },
   ];
 
