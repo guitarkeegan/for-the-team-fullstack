@@ -49,16 +49,8 @@ export default function TeamSchedule() {
 
   const groupedGames = groupGamesByMonth(games);
 
-  const handleGameClick = (game: Game) => {
-    const searchParams = new URLSearchParams({
-      homeTeam: game.home_name,
-      awayTeam: game.away_name,
-      homeScore: game.home_score.toString(),
-      awayScore: game.away_score.toString(),
-      homeId: game.home_id.toString(),
-      awayId: game.away_id.toString(),
-    });
-    router.push(`/coach-dash/game-stints/${game.game_id}?${searchParams.toString()}`);
+  const handleGameClick = (gameId: number) => {
+    router.push(`/coach-dash/game-stints/${gameId}`);
   };
 
   return (
@@ -74,7 +66,7 @@ export default function TeamSchedule() {
                     date={new Date(game.game_date).toLocaleDateString()}
                     homeTeam={{ name: game.home_name, score: game.home_score }}
                     awayTeam={{ name: game.away_name, score: game.away_score }}
-                    onClick={() => handleGameClick(game)}
+                    onClick={() => handleGameClick(game.game_id)}
                     id={game.game_id.toString()}
                   />
             ))}
