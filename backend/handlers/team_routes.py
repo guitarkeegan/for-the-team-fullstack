@@ -2,12 +2,12 @@ from flask import Blueprint, jsonify
 from sqlalchemy import text
 from .validators import validate_month_format  # Import the new validator function
 
-def create_team_bp(db_session):
+def create_team_bp(db_session, token_required):
     team_bp = Blueprint('team', __name__, url_prefix='/teams')
 
-    # TODO: refactor of GLG data is added to game_schedule
     @team_bp.route('/', methods=['GET'])
-    def get_standings():
+    @token_required
+    def get_standings(current_user):
         """
         Retrieve and return the current team standings.
 
@@ -60,7 +60,8 @@ def create_team_bp(db_session):
         return jsonify(rankings)
 
     @team_bp.route('/<string:month>', methods=['GET'])
-    def get_standings_by_month(month):
+    @token_required
+    def get_standings_by_month(current_user, month):
         """
         Retrieve team standings for a specific month.
 

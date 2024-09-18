@@ -4,10 +4,11 @@ from .validators import validate_date_range
 import re
 from datetime import datetime
 
-def create_schedule_bp(db_session):
+def create_schedule_bp(db_session, token_required):
     schedule_bp = Blueprint('schedule', __name__, url_prefix='/schedule')
 
     @schedule_bp.route('/past-games/<int:team_id>/<int:year>', methods=['GET'])
+    @token_required
     def past_games(team_id, year):
         result = db_session.execute(text("""
             SELECT 
@@ -37,6 +38,7 @@ def create_schedule_bp(db_session):
 
 
     @schedule_bp.route('/most-b2b', methods=['GET'])
+    @token_required
     def most_back_to_back_games():
 
         result = db_session.execute(text("""
@@ -108,7 +110,8 @@ def create_schedule_bp(db_session):
         return jsonify([dict(row) for row in result]), 200
 
     @schedule_bp.route('/most-rest/<string:start_date>/<string:end_date>', methods=['GET'])
-    def most_rest(start_date, end_date):
+    @token_required
+    def most_rest(current_user, start_date, end_date):
         # Use the validator function
         is_valid, error = validate_date_range(start_date, end_date)
         if not is_valid:
@@ -187,7 +190,8 @@ def create_schedule_bp(db_session):
         return jsonify([dict(row) for row in result]), 200
 
     @schedule_bp.route('/most-3-in-4s/<string:start_date>/<string:end_date>', methods=['GET'])
-    def most_3_in_4s(start_date, end_date):
+    @token_required
+    def most_3_in_4s(current_user, start_date, end_date):
 
         is_valid, error = validate_date_range(start_date, end_date)
         if not is_valid:

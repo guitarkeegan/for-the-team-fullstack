@@ -1,12 +1,13 @@
 from flask import Blueprint, jsonify, request
 from sqlalchemy import text
 
-def create_lineup_bp(db_session):
+def create_lineup_bp(db_session, token_required):
     lineup_bp = Blueprint('lineup', __name__, url_prefix='/lineups')
 
     # url should be /lineups/wide?page_size=50&last_game_id=1&last_team_id=1&last_lineup_num=1
     @lineup_bp.route('/wide', methods=['GET'])
-    def get_wide_lineups():
+    @token_required
+    def get_wide_lineups(current_user):
         # Get pagination parameters from query string
         page_size = min(int(request.args.get('page_size', 50)), 100)  # Cap at 100 items per page
         last_game_id = request.args.get('last_game_id', type=int)
@@ -143,7 +144,8 @@ def create_lineup_bp(db_session):
 
     # url should be /lineups/player-stints?page_size=50&last_game_date=2024-06-01&last_team_name=
     @lineup_bp.route('/player-stints', methods=['GET'])
-    def get_player_stints():
+    @token_required
+    def get_player_stints(current_user):
         # Get pagination parameters from query string
         page_size = min(int(request.args.get('page_size', 50)), 100)  # Cap at 100 items per page
         last_game_date = request.args.get('last_game_date')
@@ -303,7 +305,8 @@ def create_lineup_bp(db_session):
 
     # url should be /lineups/stint-averages?page_size=50&last_player_name=
     @lineup_bp.route('/stint-averages', methods=['GET'])
-    def stint_averages():
+    @token_required
+    def stint_averages(current_user):
         # Get pagination parameters from query string
         page_size = min(int(request.args.get('page_size', 50)), 100)  # Cap at 100 items per page
         last_player_name = request.args.get('last_player_name')
@@ -434,7 +437,8 @@ def create_lineup_bp(db_session):
 
     # url should be /lineups/win-loss-stints?page_size=50&last_player_name=
     @lineup_bp.route('/win-loss-stints', methods=['GET'])
-    def win_loss_stints():
+    @token_required
+    def win_loss_stints(current_user):
         # Get pagination parameters from query string
         page_size = min(int(request.args.get('page_size', 50)), 100)  # Cap at 100 items per page
         last_player_name = request.args.get('last_player_name')

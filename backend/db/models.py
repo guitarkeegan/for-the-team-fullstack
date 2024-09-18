@@ -106,3 +106,17 @@ class Lineup(Base):
     team = relationship("Team")
     player = relationship("Player", back_populates="lineup_entries")
     game = relationship("GameSchedule", back_populates="lineup_entries")
+
+class RoleType(enum.Enum):
+    COACH = 'COACH'
+    MEDICAL = 'MEDICAL'
+
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    username = Column(Text, unique=True, nullable=False)
+    password = Column(Text, nullable=False)
+    role = Column(Enum(RoleType), nullable=False)
+
+    def __repr__(self):
+        return f"<User(id={self.id}, username={self.username}, role={self.role})>"

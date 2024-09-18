@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import GameCard from '../../components/GameCard';
 import { useRouter } from 'next/navigation';
+import { fetchWithToken } from '../../utils/api';
 
 interface Game {
   away_id: number;
@@ -39,9 +40,17 @@ export default function TeamSchedule() {
     const fetchGames = async () => {
       const teamId = process.env.NEXT_PUBLIC_TEAM_ID;
       const year = new Date().getFullYear();
-      const response = await fetch(`/api/schedule/past-games/${teamId}/${year}`);
-      const data = await response.json();
-      setGames(data);
+      try {
+        const response = await fetchWithToken(`/api/schedule/past-games/${teamId}/${year}`);
+        if (response.ok) {
+          const data = await response.json();
+          setGames(data);
+        } else {
+          console.error('Failed to fetch games');
+        }
+      } catch (error) {
+        console.error('Error fetching games:', error);
+      }
     };
 
     fetchGames();
