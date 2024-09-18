@@ -1,0 +1,483 @@
+openapi: 3.0.0
+info:
+  title: LAC Fullstack API
+  version: 1.0.0
+  description: API for the LAC Fullstack project
+servers:
+  - url: http://localhost:5000
+paths:
+  /teams:
+    get:
+      summary: List all teams
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:    
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Team'
+  
+  /teams/{year}-{month}:
+    get:
+      summary: Get teams' performance for a specific month
+      parameters:
+        - in: path
+          name: year
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: month
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:    
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeamMonthlyPerformance'
+
+  /schedule/past-games/{teamId}/{year}:
+    get:
+      summary: Get past games for a team in a specific year
+      parameters:
+        - in: path
+          name: teamId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: year
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:    
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Game'
+
+  /schedule/most-b2b:
+    get:
+      summary: Get teams with the most back-to-back games
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:    
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BackToBackGames'
+
+  /schedule/most-rest/{startDate}/{endDate}:
+    get:
+      summary: Get teams with the most rest days between games
+      parameters:
+        - in: path
+          name: startDate
+          required: true
+          schema:
+            type: string
+            format: date
+        - in: path
+          name: endDate
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:    
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MostRest'
+
+  /schedule/most-3-in-4s/{startDate}/{endDate}:
+    get:
+      summary: Get teams with the most 3-games-in-4-days occurrences
+      parameters:
+        - in: path
+          name: startDate
+          required: true
+          schema:
+            type: string
+            format: date
+        - in: path
+          name: endDate
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:    
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ThreeInFour'
+
+  /lineups/wide:
+    get:
+      summary: Get wide format lineups
+      parameters:
+        - in: query
+          name: game_id
+          schema:
+            type: integer
+        - in: query
+          name: player_id
+          schema:
+            type: integer
+        - in: query
+          name: page_size
+          schema:
+            type: integer
+        - in: query
+          name: last_game_id
+          schema:
+            type: integer
+        - in: query
+          name: last_team_id
+          schema:
+            type: integer
+        - in: query
+          name: last_lineup_num
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:    
+              schema:
+                $ref: '#/components/schemas/WideLineups'
+
+  /lineups/player-stints:
+    get:
+      summary: Get player stints
+      parameters:
+        - in: query
+          name: page_size
+          schema:
+            type: integer
+        - in: query
+          name: last_game_date
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: last_team_name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:    
+              schema:
+                $ref: '#/components/schemas/PlayerStints'
+
+  /lineups/stint-averages:
+    get:
+      summary: Get stint averages
+      parameters:
+        - in: query
+          name: page_size
+          schema:
+            type: integer
+        - in: query
+          name: last_player_name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:    
+              schema:
+                $ref: '#/components/schemas/StintAverages'
+
+  /lineups/win-loss-stints:
+    get:
+      summary: Get win-loss stints
+      parameters:
+        - in: query
+          name: page_size
+          schema:
+            type: integer
+        - in: query
+          name: last_player_name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:    
+              schema:
+                $ref: '#/components/schemas/WinLossStints'
+
+components:
+  schemas:
+    Team:
+      type: object
+      properties:
+        games_played:
+          type: integer
+        losses:
+          type: integer
+        team_name:
+          type: string
+        win_percentage:
+          type: string
+        wins:
+          type: integer
+
+    TeamMonthlyPerformance:
+      type: object
+      properties:
+        away_games_in_month:
+          type: integer
+        games_played:
+          type: integer
+        games_played_in_month:
+          type: integer
+        home_games_in_month:
+          type: integer
+        losses:
+          type: integer
+        team_name:
+          type: string
+        win_percentage:
+          type: string
+        wins:
+          type: integer
+
+    Game:
+      type: object
+      properties:
+        away_id:
+          type: integer
+        away_name:
+          type: string
+        away_score:
+          type: integer
+        game_date:
+          type: string
+          format: date-time
+        game_id:
+          type: integer
+        home_id:
+          type: integer
+        home_name:
+          type: string
+        home_score:
+          type: integer
+
+    BackToBackGames:
+      type: object
+      properties:
+        away_away_b2b:
+          type: integer
+        away_home_b2b:
+          type: integer
+        home_away_b2b:
+          type: integer
+        home_home_b2b:
+          type: integer
+        team_name:
+          type: string
+        total_back_to_backs:
+          type: integer
+
+    MostRest:
+      type: object
+      properties:
+        game1_date:
+          type: string
+          format: date
+        game2_date:
+          type: string
+          format: date
+        max_rest_days:
+          type: integer
+        team_name:
+          type: string
+
+    ThreeInFour:
+      type: object
+      properties:
+        team_name:
+          type: string
+        three_in_four_count:
+          type: integer
+
+    WideLineups:
+      type: object
+      properties:
+        lineups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lineup'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Lineup:
+      type: object
+      properties:
+        game_id:
+          type: integer
+        lineup_num:
+          type: integer
+        period:
+          type: integer
+        player1_id:
+          type: integer
+        player1_name:
+          type: string
+        player1_position:
+          type: string
+        player2_id:
+          type: integer
+        player2_name:
+          type: string
+        player2_position:
+          type: string
+        player3_id:
+          type: integer
+        player3_name:
+          type: string
+        player3_position:
+          type: string
+        player4_id:
+          type: integer
+        player4_name:
+          type: string
+        player4_position:
+          type: string
+        player5_id:
+          type: integer
+        player5_name:
+          type: string
+        player5_position:
+          type: string
+        team_id:
+          type: integer
+        time_in:
+          type: string
+        time_out:
+          type: string
+
+    PlayerStints:
+      type: object
+      properties:
+        stints:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stint'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Stint:
+      type: object
+      properties:
+        game_date:
+          type: string
+          format: date-time
+        opponent:
+          type: string
+        period:
+          type: integer
+        player_name:
+          type: string
+        stint_end_time:
+          type: string
+        stint_number:
+          type: integer
+        stint_start_time:
+          type: string
+        team:
+          type: string
+
+    StintAverages:
+      type: object
+      properties:
+        stint_averages:
+          type: array
+          items:
+            $ref: '#/components/schemas/StintAverage'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    StintAverage:
+      type: object
+      properties:
+        avg_stint_length:
+          type: string
+        avg_stints_per_game:
+          type: string
+        player_name:
+          type: string
+
+    WinLossStints:
+      type: object
+      properties:
+        win_loss_stints:
+          type: array
+          items:
+            $ref: '#/components/schemas/WinLossStint'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    WinLossStint:
+      type: object
+      properties:
+        avg_stint_length:
+          type: string
+        avg_stint_length_diff:
+          type: string
+        avg_stint_length_losses:
+          type: string
+        avg_stint_length_wins:
+          type: string
+        avg_stints_per_game:
+          type: string
+        avg_stints_per_game_diff:
+          type: string
+        avg_stints_per_game_losses:
+          type: string
+        avg_stints_per_game_wins:
+          type: string
+        player_name:
+          type: string
+        total_games:
+          type: integer
+        total_games_losses:
+          type: integer
+        total_games_wins:
+          type: integer
+
+    Pagination:
+      type: object
+      properties:
+        next_cursor:
+          type: object
+          additionalProperties: true
+        page_size:
+          type: integer

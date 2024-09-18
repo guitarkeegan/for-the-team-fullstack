@@ -44,6 +44,33 @@ http://localhost:5000/teams/2024-01
 }
 ]
 
+
+http://localhost:5000/schedule/past-games/<teamid>/<year>
+
+[
+{
+"away_id": 1610612748,
+"away_name": "Miami Heat",
+"away_score": 104,
+"game_date": "Mon, 01 Jan 2024 22:30:00 GMT",
+"game_id": 8,
+"home_id": 1610612746,
+"home_name": "LA Clippers",
+"home_score": 121
+},
+{
+"away_id": 1610612746,
+"away_name": "LA Clippers",
+"away_score": 131,
+"game_date": "Wed, 03 Jan 2024 21:00:00 GMT",
+"game_id": 23,
+"home_id": 1610612756,
+"home_name": "Phoenix Suns",
+"home_score": 122
+}
+]
+
+
 http://localhost:5000/schedule/most-b2b
 
 [

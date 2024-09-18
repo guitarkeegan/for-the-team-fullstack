@@ -3,15 +3,6 @@ from sqlalchemy import text
 from .validators import validate_month_format  # Import the new validator function
 
 def create_team_bp(db_session):
-    """
-    Create and return a Flask Blueprint for team-related routes.
-
-    Args:
-        db_session: SQLAlchemy database session object.
-
-    Returns:
-        Flask Blueprint: A Blueprint object containing team-related routes.
-    """
     team_bp = Blueprint('team', __name__, url_prefix='/teams')
 
     # TODO: refactor of GLG data is added to game_schedule

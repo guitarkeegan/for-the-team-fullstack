@@ -9,6 +9,7 @@ from scripts.load_data import load_data
 from handlers.team_routes import create_team_bp 
 from handlers.schedule_routes import create_schedule_bp
 from handlers.lineup_routes import create_lineup_bp
+from handlers.doc_route import create_docs_bp
 
 
 
@@ -37,6 +38,7 @@ with app.app_context():
 app.register_blueprint(create_team_bp(session))
 app.register_blueprint(create_schedule_bp(session))
 app.register_blueprint(create_lineup_bp(session))
+app.register_blueprint(create_docs_bp(session))
 # If not using migrate
 # Base.metadata.create_all(engine)
 
