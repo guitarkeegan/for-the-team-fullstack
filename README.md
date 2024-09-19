@@ -7,6 +7,15 @@
 You can replace the backend/dev_test_data folder with new files. As long
 as they share the same names, they should be loaded into the database just fine.
 
+## Env
+
+You will also need a .env.local in the frontend directory 
+
+'''
+NEXT_PUBLIC_BASE_URL=http://localhost:5000/
+NEXT_PUBLIC_TEAM_ID=1610612746
+'''
+
 ## Questionare 
 
 I have links throughout the form to the api routes. If you have the backend running
