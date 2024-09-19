@@ -51,10 +51,11 @@ export default function GameStints({ params }: { params: { gameId: string } }) {
         console.error('Error fetching stint data:', error);
       }
     };
-
     fetchStintData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.gameId]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const processStints = (lineups: any[]): StintsByPeriod => {
     const stintsByPeriod: StintsByPeriod = {};
     lineups.forEach((lineup, index) => {
