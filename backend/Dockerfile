@@ -1,4 +1,4 @@
-FROM golang:1.22.6 as migrate
+FROM golang:1.22.6 AS migrate
 
 RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 

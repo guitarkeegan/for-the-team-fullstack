@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Roboto, Bebas_Neue } from "next/font/google";
 import "./globals.css";
 
-const roboto = Roboto({ 
+const roboto = Roboto({
   weight: ['400', '700'],
   subsets: ['latin'],
   variable: '--font-roboto',
