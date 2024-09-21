@@ -1,41 +1,57 @@
-.PHONY: front/up
-	docker compose --profile frontend up
+# Define common Docker Compose command
+DOCKER_COMPOSE := docker compose
 
-.PHONY: front/build
-	docker compose --profile frontend build
+# Define profiles
+FRONTEND_PROFILE := --profile frontend
+BACKEND_PROFILE := --profile backend
 
-.PHONY: front/up/build
-	docker compose --profile frontend up --build
+# Frontend targets
+.PHONY: front/up front/build front/up/build front/down
+front/up:
+	$(DOCKER_COMPOSE) $(FRONTEND_PROFILE) up
 
-.PHONY: front/down
-	docker compose --profile frontend down
+front/build:
+	$(DOCKER_COMPOSE) $(FRONTEND_PROFILE) build
 
-.PHONY: back/up
-	docker compose --profile backend up
+front/up/build:
+	$(DOCKER_COMPOSE) $(FRONTEND_PROFILE) up --build
 
-.PHONY: back/up/build
-	docker compose --profile backend up --build
+front/down:
+	$(DOCKER_COMPOSE) $(FRONTEND_PROFILE) down
 
-.PHONY: fullstack/up
-	docker compose --profile backend --profile frontend up
+# Backend targets
+.PHONY: back/up back/up/build back/down
+back/up:
+	$(DOCKER_COMPOSE) $(BACKEND_PROFILE) up
 
-.PHONY: fullstack/up/build
-	docker compose --profile backend --profile frontend up --build
+back/up/build:
+	$(DOCKER_COMPOSE) $(BACKEND_PROFILE) up --build
 
-.PHONY: back/down
-	docker compose --profile backend down -v
+back/down:
+	$(DOCKER_COMPOSE) $(BACKEND_PROFILE) down -v
 
+# Fullstack targets
+.PHONY: fullstack/up fullstack/up/build
+fullstack/up:
+	$(DOCKER_COMPOSE) $(BACKEND_PROFILE) $(FRONTEND_PROFILE) up
+
+fullstack/up/build:
+	$(DOCKER_COMPOSE) $(BACKEND_PROFILE) $(FRONTEND_PROFILE) up
+
+# Maintenance targets
 .PHONY: prune/all
-	docker image prune -y
-	docker builder prune -y
-	@echo "pruned images and builder"
-	@echo "current processes"
+prune/all:
+	docker image prune -f
+	docker builder prune -f
+	@echo "Pruned images and builder"
+	@echo "Current processes:"
 	docker system df
 
-# Define the target with a variable
+# Database migration target
 .PHONY: db/migration/create
-
-# Target for creating a new migration
 db/migration/create:
-	@if [ -z "$(name)" ]; then echo "Error: Please specify a migration name. Usage: make db/migration/create name=<name>"; exit 1; fi
+	@if [ -z "$(name)" ]; then \
+		echo "Error: Please specify a migration name. Usage: make db/migration/create name=<name>"; \
+		exit 1; \
+	fi
 	migrate create -ext sql -dir backend/migrations -seq $(name)

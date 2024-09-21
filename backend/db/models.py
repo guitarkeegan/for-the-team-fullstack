@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine, Column, BigInteger, String, Integer, Enum, Numeric, ForeignKey, TIMESTAMP, CheckConstraint, Text, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
+from flask_security import UserMixin, RoleMixin
 import enum
 
 Base = declarative_base()
@@ -22,7 +23,40 @@ class PositionEnum(enum.Enum):
     PF = 'PF'
     C = 'C'
 
-# Define Models
+
+
+class Role(Base, RoleMixin):
+    __tablename__ = 'roles'
+    id = Column(BigInteger, primary_key=True)
+    name = Column(Text, unique=True)
+    description = Column(Text)
+
+
+class User(Base, UserMixin):
+    __tablename__ = 'users'
+    id = Column(BigInteger, primary_key=True)
+    username = Column(Text, unique=True, nullable=False)
+    email = Column(Text, unique=True, nullable=False)
+    password = Column(Text, nullable=False)
+    active = Column(Boolean, default=True)
+    last_login_at = Column(TIMESTAMP, nullable=False, server_default=func.current_timestamp())
+    current_login_at = Column(TIMESTAMP)
+    last_login_ip = Column(Text, nullable=False)
+    current_login_ip = Column(Text, nullable=False)
+    login_count = Column(Integer, default=0)
+    fs_uniquifier = Column(Text, unique=True, nullable=False)
+    confirmed_at = Column(TIMESTAMP)
+    created_at = Column(TIMESTAMP, nullable=False, server_default=func.current_timestamp())
+
+    roles = relationship('Role', secondary='user_roles', backref='users')
+
+
+class RolesUsers(Base):
+    __tablename__ = 'user_roles'
+    user_id = Column('user_id', BigInteger, ForeignKey('users.id'), primary_key=True)
+    role_id = Column('role_id', BigInteger, ForeignKey('roles.id'), primary_key=True)
+
+
 class Team(Base):
     __tablename__ = 'teams'
     team_id = Column(BigInteger, primary_key=True)

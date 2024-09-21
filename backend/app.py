@@ -4,13 +4,13 @@ import logging
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from db.models import Base, Team, TeamAffiliate, Roster, Player, GameSchedule, Lineup
+from db.models import Base, Team, TeamAffiliate, Roster, Player, GameSchedule, Lineup, User, Role, UserRoles
 from scripts.load_data import load_data
 from handlers.team_routes import create_team_bp 
 from handlers.schedule_routes import create_schedule_bp
 from handlers.lineup_routes import create_lineup_bp
 from handlers.doc_route import create_docs_bp
-
+from flask_security import Security, SQLAlchemyUserDatastore, auth_required, hash_password
 
 
 
@@ -24,11 +24,20 @@ logging.basicConfig(
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://user:password@db:5432/lac_fullstack_dev')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['REMEMBER_COOKIE_SAMESITE'] = 'strict'
+app.config['SESSION_COOKIE_SAMESITE'] = 'strict'
+app.confix['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_pre_ping": True,
+}
 
 # Initialize SQLAlchemy
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 Session = sessionmaker(bind=engine)
 session = Session()
+
+# Setup Flask-Security
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+security = Security(app, user_datastore)
 
 app.logger.debug("loading data")
 # Load data only on startup
