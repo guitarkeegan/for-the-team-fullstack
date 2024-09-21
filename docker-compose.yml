@@ -33,15 +33,14 @@ services:
     profiles: ["backend"]
 
   frontend:
-    build: ./frontend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+    build:
+      dockerfile: Dockerfile
+      context: ./frontend
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:5000/
-      - NEXT_PUBLIC_BASE_URL=http://localhost:5000/
+      - NEXT_PUBLIC_API_URL=http://api:5000/
+      - NEXT_PUBLIC_BASE_URL=http://api:5000/
     #depends_on:
     #  - api
     profiles: ["frontend"]
