@@ -3,6 +3,7 @@ from sqlalchemy import text
 from flask_security import auth_required, roles_accepted
 from functools import wraps
 
+
 def coach_or_medical_required(f):
     @wraps(f)
     @auth_required()
@@ -11,34 +12,22 @@ def coach_or_medical_required(f):
         return f(*args, **kwargs)
     return decorated
 
+
 def create_lineup_bp(db_session):
     lineup_bp = Blueprint('lineup', __name__, url_prefix='/lineups')
 
     @lineup_bp.route('/wide', methods=['GET'])
     @coach_or_medical_required
     def get_wide_lineups():
-        # Get pagination parameters from query string
-        page_size = min(int(request.args.get('page_size', 50)), 100)  # Cap at 100 items per page
-        last_game_id = request.args.get('last_game_id', type=int)
-        last_team_id = request.args.get('last_team_id', type=int)
-        last_lineup_num = request.args.get('last_lineup_num', type=int)
-
         # Get optional filter parameters
         game_id = request.args.get('game_id', type=int)
         player_id = request.args.get('player_id', type=int)
 
         # Initialize parameters dictionary
-        params = {'page_size': page_size}
+        params = {}
 
-        # Build the WHERE clause for keyset pagination and optional filters
+        # Build the WHERE clause for optional filters
         where_clauses = []
-        if all(v is not None for v in [last_game_id, last_team_id, last_lineup_num]):
-            where_clauses.append("(l.game_id, l.team_id, l.lineup_num) > (:last_game_id, :last_team_id, :last_lineup_num)")
-            params.update({
-                'last_game_id': last_game_id,
-                'last_team_id': last_team_id,
-                'last_lineup_num': last_lineup_num
-            })
 
         if game_id:
             where_clauses.append("l.game_id = :game_id")
@@ -64,17 +53,18 @@ def create_lineup_bp(db_session):
                     l.player_id,
                     p.first_name,
                     p.last_name,
-                    r.position,
+                    -- Use roster if available, otherwise use NULL
+                    COALESCE(r.position, 'UNKNOWN') AS position,
                     ROW_NUMBER() OVER (
                         PARTITION BY l.game_id, l.team_id, l.lineup_num, l.period, l.time_in, l.time_out
                         ORDER BY
-                            CASE r.position
+                            CASE COALESCE(r.position, 'UNKNOWN')
                                 WHEN 'PG' THEN 1
                                 WHEN 'SG' THEN 2
                                 WHEN 'SF' THEN 3
                                 WHEN 'PF' THEN 4
                                 WHEN 'C'  THEN 5
-                                ELSE 6  -- For any other positions
+                                ELSE 6  -- For any other positions or when position is NULL
                             END,
                             l.player_id  -- Secondary ordering to ensure uniqueness
                     ) AS player_num
@@ -82,8 +72,8 @@ def create_lineup_bp(db_session):
                     lineup l
                 JOIN
                     players p ON l.player_id = p.player_id
-                JOIN
-                    roster r ON l.player_id = r.player_id AND l.team_id = r.team_id
+                LEFT JOIN
+                    roster r ON l.player_id = r.player_id AND l.team_id = r.team_id  -- LEFT JOIN with roster
                 {where_clause}
             )
             SELECT
@@ -126,7 +116,6 @@ def create_lineup_bp(db_session):
                 game_id,
                 team_id,
                 lineup_num
-            LIMIT :page_size
         """
 
         result = db_session.execute(text(query), params)
@@ -134,20 +123,8 @@ def create_lineup_bp(db_session):
 
         # Prepare the response
         response = {
-            "lineups": lineups,
-            "pagination": {
-                "page_size": page_size,
-            }
+            "lineups": lineups
         }
-
-        # Add next page cursor if there are more results
-        if lineups:
-            last_lineup = lineups[-1]
-            response["pagination"]["next_cursor"] = {
-                "last_game_id": last_lineup["game_id"],
-                "last_team_id": last_lineup["team_id"],
-                "last_lineup_num": last_lineup["lineup_num"]
-            }
 
         return jsonify(response), 200
 
@@ -155,7 +132,8 @@ def create_lineup_bp(db_session):
     @coach_or_medical_required
     def get_player_stints():
         # Get pagination parameters from query string
-        page_size = min(int(request.args.get('page_size', 50)), 100)  # Cap at 100 items per page
+        page_size = min(int(request.args.get('page_size', 50)),
+                        100)  # Cap at 100 items per page
         last_game_date = request.args.get('last_game_date')
         last_team_name = request.args.get('last_team_name')
         last_player_name = request.args.get('last_player_name')
@@ -315,7 +293,8 @@ def create_lineup_bp(db_session):
     @coach_or_medical_required
     def stint_averages():
         # Get pagination parameters from query string
-        page_size = min(int(request.args.get('page_size', 50)), 100)  # Cap at 100 items per page
+        page_size = min(int(request.args.get('page_size', 50)),
+                        100)  # Cap at 100 items per page
         last_player_name = request.args.get('last_player_name')
 
         # Initialize parameters dictionary
@@ -446,7 +425,8 @@ def create_lineup_bp(db_session):
     @coach_or_medical_required
     def win_loss_stints():
         # Get pagination parameters from query string
-        page_size = min(int(request.args.get('page_size', 50)), 100)  # Cap at 100 items per page
+        page_size = min(int(request.args.get('page_size', 50)),
+                        100)  # Cap at 100 items per page
         last_player_name = request.args.get('last_player_name')
 
         # Initialize parameters dictionary

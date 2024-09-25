@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS players (
 );
 
 CREATE TYPE contract_type AS ENUM ('NBA', 'GLG', 'TWO_WAY');
-CREATE TYPE position AS ENUM ('PG', 'SG', 'SF', 'PF', 'C');
+CREATE TYPE position AS ENUM ('PG', 'SG', 'SF', 'PF', 'C', 'UNKNOWN');
 
 -- players on roster are not necessarily in the player table, unless I change that
 -- going to assume this is not for historical rosters, but current

@@ -12,13 +12,14 @@ type Player = {
   position: string;
 };
 
-// Update the Stint type to match the API response
+// Update the Stint type to include both teams
 type Stint = {
   id: number;
   period: number;
   startTime: number;
   endTime: number;
-  players: Player[];
+  homePlayers: Player[];
+  awayPlayers: Player[];
 };
 
 type StintsByPeriod = {
@@ -36,6 +37,12 @@ export default function GameStints({ params }: { params: { gameId: string } }) {
   const awayTeam = searchParams.get("awayTeam") || "";
   const homeScore = searchParams.get("homeScore") || "";
   const awayScore = searchParams.get("awayScore") || "";
+
+  const [clippersTeamId, setClippersTeamId] = useState<string>("");
+
+  useEffect(() => {
+    setClippersTeamId(process.env.NEXT_PUBLIC_TEAM_ID || "");
+  }, []);
 
   useEffect(() => {
     const fetchStintData = async () => {
@@ -58,93 +65,101 @@ export default function GameStints({ params }: { params: { gameId: string } }) {
     };
     fetchStintData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.gameId]);
+  }, [params.gameId, clippersTeamId]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const processStints = (lineups: any[]): StintsByPeriod => {
     const stintsByPeriod: StintsByPeriod = {};
-    lineups.forEach((lineup, index) => {
+    const stintMap: { [key: string]: Stint } = {};
+
+    lineups.forEach((lineup) => {
       const period = lineup.period;
-      // Convert time to seconds from start of period (720 seconds = 12 minutes)
       const startTime = 720 - parseFloat(lineup.time_in);
       const endTime = 720 - parseFloat(lineup.time_out);
+      const isHomeTeam = lineup.team_id.toString() === clippersTeamId;
 
       const players: Player[] = [
         {
           name: lineup.player1_name,
-          position: lineup.player1_position,
-          team:
-            lineup.team_id === parseInt(params.gameId.split("-")[0])
-              ? "home"
-              : "away",
+          position: lineup.player1_position || "UNKNOWN",
+          team: isHomeTeam ? "home" : "away",
         },
         {
           name: lineup.player2_name,
-          position: lineup.player2_position,
-          team:
-            lineup.team_id === parseInt(params.gameId.split("-")[0])
-              ? "home"
-              : "away",
+          position: lineup.player2_position || "UNKNOWN",
+          team: isHomeTeam ? "home" : "away",
         },
         {
           name: lineup.player3_name,
-          position: lineup.player3_position,
-          team:
-            lineup.team_id === parseInt(params.gameId.split("-")[0])
-              ? "home"
-              : "away",
+          position: lineup.player3_position || "UNKNOWN",
+          team: isHomeTeam ? "home" : "away",
         },
         {
           name: lineup.player4_name,
-          position: lineup.player4_position,
-          team:
-            lineup.team_id === parseInt(params.gameId.split("-")[0])
-              ? "home"
-              : "away",
+          position: lineup.player4_position || "UNKNOWN",
+          team: isHomeTeam ? "home" : "away",
         },
         {
           name: lineup.player5_name,
-          position: lineup.player5_position,
-          team:
-            lineup.team_id === parseInt(params.gameId.split("-")[0])
-              ? "home"
-              : "away",
+          position: lineup.player5_position || "UNKNOWN",
+          team: isHomeTeam ? "home" : "away",
         },
       ];
 
-      const processedStint: Stint = {
-        id: index,
-        period,
-        startTime,
-        endTime,
-        players,
-      };
-
-      if (!stintsByPeriod[period]) {
-        stintsByPeriod[period] = [];
+      const stintKey = `${period}-${startTime}-${endTime}`;
+      if (!stintMap[stintKey]) {
+        stintMap[stintKey] = {
+          id: Object.keys(stintMap).length,
+          period,
+          startTime,
+          endTime,
+          homePlayers: isHomeTeam ? players : [],
+          awayPlayers: isHomeTeam ? [] : players,
+        };
+      } else {
+        if (isHomeTeam) {
+          stintMap[stintKey].homePlayers = players;
+        } else {
+          stintMap[stintKey].awayPlayers = players;
+        }
       }
-      stintsByPeriod[period].push(processedStint);
     });
 
-    // Sort stints within each period by startTime
-    for (const period in stintsByPeriod) {
-      stintsByPeriod[period].sort((a, b) => a.startTime - b.startTime);
-    }
+    // Convert stintMap to array and sort by period and startTime
+    const sortedStints = Object.values(stintMap).sort((a, b) => {
+      if (a.period !== b.period) return a.period - b.period;
+      return a.startTime - b.startTime;
+    });
+
+    // Group stints by period
+    sortedStints.forEach((stint) => {
+      if (!stintsByPeriod[stint.period]) {
+        stintsByPeriod[stint.period] = [];
+      }
+      stintsByPeriod[stint.period].push(stint);
+    });
 
     console.log("Processed stintsByPeriod:", stintsByPeriod);
     return stintsByPeriod;
   };
 
-  // Add this logging
   useEffect(() => {
     console.log("Current stintsByPeriod:", stintsByPeriod);
-  }, [stintsByPeriod]);
+    console.log("Active Period:", activePeriod);
+    console.log("Active Stint:", activeStint);
+  }, [stintsByPeriod, activePeriod, activeStint]);
 
-  const activePlayers =
-    activeStint !== null && stintsByPeriod[activePeriod]
-      ? stintsByPeriod[activePeriod].find((stint) => stint.id === activeStint)
-          ?.players || []
-      : [];
+  const getBothTeamsPlayers = () => {
+    if (activeStint === null || !stintsByPeriod[activePeriod]) return [];
+    const stint = stintsByPeriod[activePeriod].find(
+      (s) => s.id === activeStint
+    );
+    if (!stint) return [];
+    return [...stint.homePlayers, ...stint.awayPlayers];
+  };
+
+  const isClippersHome =
+    parseInt(params.gameId.split("-")[0]) === parseInt(clippersTeamId);
 
   return (
     <div className="p-4 bg-teamSilver flex flex-col items-center gap-4">
@@ -154,11 +169,18 @@ export default function GameStints({ params }: { params: { gameId: string } }) {
 
       <div className="w-full max-w-[600px] md:max-w-[800px] lg:max-w-[1000px] mb-8">
         <div className="flex justify-between items-center w-full">
-          <h2 className="text-2xl font-heading text-teamRed">{homeTeam}</h2>
+          <h2 className="text-2xl font-heading text-red-600">
+            {isClippersHome ? homeTeam : awayTeam}{" "}
+            {/* Clippers always on the left */}
+          </h2>
           <div className="text-3xl font-bold">
-            {homeScore} - {awayScore}
+            {isClippersHome ? homeScore : awayScore} -{" "}
+            {isClippersHome ? awayScore : homeScore}
           </div>
-          <h2 className="text-2xl font-heading text-teamRed">{awayTeam}</h2>
+          <h2 className="text-2xl font-heading text-blue-600">
+            {isClippersHome ? awayTeam : homeTeam}{" "}
+            {/* Opposing team always on the right */}
+          </h2>
         </div>
       </div>
 
@@ -176,13 +198,12 @@ export default function GameStints({ params }: { params: { gameId: string } }) {
         ))}
       </div>
 
-      {/* Add this conditional rendering and error message */}
       {Object.keys(stintsByPeriod).length === 0 ? (
         <p>No stint data available. Please check the console for any errors.</p>
       ) : (
         <>
           <div className="mb-8 flex justify-center w-full max-w-[600px] md:max-w-[800px] lg:max-w-[1000px]">
-            <BasketballCourt players={activePlayers} />
+            <BasketballCourt players={getBothTeamsPlayers()} />
           </div>
           <div className="flex flex-wrap justify-center gap-2 mb-8 w-full max-w-[600px] md:max-w-[800px] lg:max-w-[1000px]">
             {stintsByPeriod[activePeriod]?.map((stint) => (
@@ -191,10 +212,46 @@ export default function GameStints({ params }: { params: { gameId: string } }) {
                 startTime={stint.startTime}
                 endTime={stint.endTime}
                 isActive={activeStint === stint.id}
-                onClick={() => setActiveStint(stint.id)}
+                onClick={() => {
+                  setActiveStint(stint.id);
+                  console.log("Set Active Stint:", stint.id);
+                }}
               />
             ))}
           </div>
+          {activeStint !== null && (
+            <div className="w-full max-w-[600px] md:max-w-[800px] lg:max-w-[1000px]">
+              <h3 className="text-2xl font-heading text-teamBlue mb-4">
+                Active Players
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="text-xl font-heading text-teamRed mb-2">
+                    Clippers
+                  </h4>
+                  {getBothTeamsPlayers()
+                    .filter((player) => player.team === "home")
+                    .map((player, index) => (
+                      <p key={index} className="mb-1">
+                        {player.name} - {player.position}
+                      </p>
+                    ))}
+                </div>
+                <div>
+                  <h4 className="text-xl font-heading text-teamRed mb-2">
+                    Opposing Team
+                  </h4>
+                  {getBothTeamsPlayers()
+                    .filter((player) => player.team === "away")
+                    .map((player, index) => (
+                      <p key={index} className="mb-1">
+                        {player.name} - {player.position}
+                      </p>
+                    ))}
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
 
