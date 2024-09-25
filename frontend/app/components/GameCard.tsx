@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface GameCardProps {
   id: string;
@@ -8,7 +8,13 @@ interface GameCardProps {
   onClick?: () => void;
 }
 
-const GameCard: React.FC<GameCardProps> = ({ id, date, homeTeam, awayTeam, onClick }) => {
+const GameCard: React.FC<GameCardProps> = ({
+  id,
+  date,
+  homeTeam,
+  awayTeam,
+  onClick,
+}) => {
   if (!homeTeam || !awayTeam) {
     return (
       <div className="bg-red-100 p-4 rounded-lg">
@@ -18,11 +24,11 @@ const GameCard: React.FC<GameCardProps> = ({ id, date, homeTeam, awayTeam, onCli
   }
 
   return (
-    <div 
+    <div
       className="bg-white p-4 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow duration-300"
       onClick={onClick}
     >
-      <div className="text-sm text-gray-500 mb-2">{date}</div>
+      <div className="text-sm text-gray-800 mb-2">{date}</div>
       <div className="flex justify-between items-center">
         <div className="text-lg font-semibold">{homeTeam.name}</div>
         <div className="text-xl font-bold">{homeTeam.score}</div>
@@ -36,4 +42,3 @@ const GameCard: React.FC<GameCardProps> = ({ id, date, homeTeam, awayTeam, onCli
 };
 
 export default GameCard;
-

@@ -1,6 +1,6 @@
 "use client";
 import Features from "@/app/components/Features";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 import { useRouter } from "next/navigation";
 
 export default function CoachDash() {
