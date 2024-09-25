@@ -41,8 +41,8 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=http://api:5000/
       - NEXT_PUBLIC_BASE_URL=http://api:5000/
-    #depends_on:
-    #  - api
+    depends_on:
+      - api
     profiles: ["frontend"]
 
 volumes:

@@ -1,11 +1,21 @@
 from flask import Blueprint, jsonify, request
 from sqlalchemy import text
+from flask_security import auth_required, roles_accepted
+from functools import wraps
+
+def coach_or_medical_required(f):
+    @wraps(f)
+    @auth_required()
+    @roles_accepted('coach', 'medical')
+    def decorated(*args, **kwargs):
+        return f(*args, **kwargs)
+    return decorated
 
 def create_lineup_bp(db_session):
     lineup_bp = Blueprint('lineup', __name__, url_prefix='/lineups')
 
-    # url should be /lineups/wide?page_size=50&last_game_id=1&last_team_id=1&last_lineup_num=1
     @lineup_bp.route('/wide', methods=['GET'])
+    @coach_or_medical_required
     def get_wide_lineups():
         # Get pagination parameters from query string
         page_size = min(int(request.args.get('page_size', 50)), 100)  # Cap at 100 items per page
@@ -141,8 +151,8 @@ def create_lineup_bp(db_session):
 
         return jsonify(response), 200
 
-    # url should be /lineups/player-stints?page_size=50&last_game_date=2024-06-01&last_team_name=
     @lineup_bp.route('/player-stints', methods=['GET'])
+    @coach_or_medical_required
     def get_player_stints():
         # Get pagination parameters from query string
         page_size = min(int(request.args.get('page_size', 50)), 100)  # Cap at 100 items per page
@@ -301,8 +311,8 @@ def create_lineup_bp(db_session):
 
         return jsonify(response), 200
 
-    # url should be /lineups/stint-averages?page_size=50&last_player_name=
     @lineup_bp.route('/stint-averages', methods=['GET'])
+    @coach_or_medical_required
     def stint_averages():
         # Get pagination parameters from query string
         page_size = min(int(request.args.get('page_size', 50)), 100)  # Cap at 100 items per page
@@ -432,8 +442,8 @@ def create_lineup_bp(db_session):
 
         return jsonify(response), 200
 
-    # url should be /lineups/win-loss-stints?page_size=50&last_player_name=
     @lineup_bp.route('/win-loss-stints', methods=['GET'])
+    @coach_or_medical_required
     def win_loss_stints():
         # Get pagination parameters from query string
         page_size = min(int(request.args.get('page_size', 50)), 100)  # Cap at 100 items per page

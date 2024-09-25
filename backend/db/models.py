@@ -1,8 +1,9 @@
-from sqlalchemy import create_engine, Column, BigInteger, String, Integer, Enum, Numeric, ForeignKey, TIMESTAMP, CheckConstraint, Text, UniqueConstraint
+from sqlalchemy import create_engine, Column, BigInteger, String, Integer, Enum, Numeric, ForeignKey, TIMESTAMP, CheckConstraint, Text, UniqueConstraint, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from flask_security import UserMixin, RoleMixin
 import enum
+from sqlalchemy.sql import func
 
 Base = declarative_base()
 
@@ -41,8 +42,8 @@ class User(Base, UserMixin):
     active = Column(Boolean, default=True)
     last_login_at = Column(TIMESTAMP, nullable=False, server_default=func.current_timestamp())
     current_login_at = Column(TIMESTAMP)
-    last_login_ip = Column(Text, nullable=False)
-    current_login_ip = Column(Text, nullable=False)
+    last_login_ip = Column(Text)
+    current_login_ip = Column(Text)
     login_count = Column(Integer, default=0)
     fs_uniquifier = Column(Text, unique=True, nullable=False)
     confirmed_at = Column(TIMESTAMP)
@@ -51,7 +52,7 @@ class User(Base, UserMixin):
     roles = relationship('Role', secondary='user_roles', backref='users')
 
 
-class RolesUsers(Base):
+class UserRoles(Base):
     __tablename__ = 'user_roles'
     user_id = Column('user_id', BigInteger, ForeignKey('users.id'), primary_key=True)
     role_id = Column('role_id', BigInteger, ForeignKey('roles.id'), primary_key=True)

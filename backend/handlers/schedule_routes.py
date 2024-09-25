@@ -1,13 +1,27 @@
+"""
+This module handles the schedule routes for the application.
+"""
 from flask import Blueprint, jsonify
 from sqlalchemy import text
 from .validators import validate_date_range
-import re
-from datetime import datetime
+from flask_security import auth_required, roles_accepted
+from functools import wraps
+
+
+def coach_or_medical_required(f):
+    @wraps(f)
+    @auth_required()
+    @roles_accepted('coach', 'medical')
+    def decorated(*args, **kwargs):
+        return f(*args, **kwargs)
+    return decorated
+
 
 def create_schedule_bp(db_session):
     schedule_bp = Blueprint('schedule', __name__, url_prefix='/schedule')
 
     @schedule_bp.route('/past-games/<int:team_id>/<int:year>', methods=['GET'])
+    @coach_or_medical_required
     def past_games(team_id, year):
         result = db_session.execute(text("""
             SELECT 
@@ -31,21 +45,20 @@ def create_schedule_bp(db_session):
                 AND gs.game_date < CURRENT_TIMESTAMP
             ORDER BY 
                 gs.game_date ASC; 
-                                         """), {'team_id': team_id, 'year': year})
-        
+        """), {'team_id': team_id, 'year': year})
+
         return jsonify([dict(row) for row in result]), 200
 
-
     @schedule_bp.route('/most-b2b', methods=['GET'])
+    @coach_or_medical_required
     def most_back_to_back_games():
-
         result = db_session.execute(text("""
             WITH team_games AS (
                 SELECT
                     t.team_id,
                     t.team_name,
                     g.game_id,
-                    DATE(g.game_date) AS game_date,  -- Convert to DATE to remove time component
+                    DATE(g.game_date) AS game_date,
                     CASE WHEN g.home_id = t.team_id THEN 'home' ELSE 'away' END AS location
                 FROM
                     teams t
@@ -64,23 +77,18 @@ def create_schedule_bp(db_session):
                 SELECT
                     team_id,
                     team_name,
-                    -- Total back-to-back games
                     COUNT(*) FILTER (
                         WHERE prev_game_date IS NOT NULL AND game_date - prev_game_date = 1
                     ) AS total_back_to_backs,
-                    -- Home-Home back-to-back games
                     COUNT(*) FILTER (
                         WHERE prev_game_date IS NOT NULL AND game_date - prev_game_date = 1 AND prev_location = 'home' AND location = 'home'
                     ) AS home_home_b2b,
-                    -- Away-Away back-to-back games
                     COUNT(*) FILTER (
                         WHERE prev_game_date IS NOT NULL AND game_date - prev_game_date = 1 AND prev_location = 'away' AND location = 'away'
                     ) AS away_away_b2b,
-                    -- Home-Away back-to-back games
                     COUNT(*) FILTER (
                         WHERE prev_game_date IS NOT NULL AND game_date - prev_game_date = 1 AND prev_location = 'home' AND location = 'away'
                     ) AS home_away_b2b,
-                    -- Away-Home back-to-back games
                     COUNT(*) FILTER (
                         WHERE prev_game_date IS NOT NULL AND game_date - prev_game_date = 1 AND prev_location = 'away' AND location = 'home'
                     ) AS away_home_b2b
@@ -90,7 +98,6 @@ def create_schedule_bp(db_session):
                     team_id,
                     team_name
             )
-
             SELECT
                 team_name,
                 total_back_to_backs,
@@ -103,13 +110,13 @@ def create_schedule_bp(db_session):
             ORDER BY
                 total_back_to_backs DESC,
                 team_name;
-                                         """))
-        
+        """))
+
         return jsonify([dict(row) for row in result]), 200
 
     @schedule_bp.route('/most-rest/<string:start_date>/<string:end_date>', methods=['GET'])
+    @coach_or_medical_required
     def most_rest(start_date, end_date):
-        # Use the validator function
         is_valid, error = validate_date_range(start_date, end_date)
         if not is_valid:
             return jsonify(error), 400
@@ -120,7 +127,7 @@ def create_schedule_bp(db_session):
                     t.team_id,
                     t.team_name,
                     g.game_id,
-                    DATE(g.game_date) AS game_date  -- Convert to DATE to remove time component
+                    DATE(g.game_date) AS game_date
                 FROM
                     teams t
                 JOIN
@@ -182,13 +189,13 @@ def create_schedule_bp(db_session):
             ORDER BY
                 max_rest_days DESC,
                 team_name;
-                                         """), {'start_date': start_date, 'end_date': end_date})
-        
+        """), {'start_date': start_date, 'end_date': end_date})
+
         return jsonify([dict(row) for row in result]), 200
 
     @schedule_bp.route('/most-3-in-4s/<string:start_date>/<string:end_date>', methods=['GET'])
+    @coach_or_medical_required
     def most_3_in_4s(start_date, end_date):
-
         is_valid, error = validate_date_range(start_date, end_date)
         if not is_valid:
             return jsonify(error), 400
@@ -225,7 +232,7 @@ def create_schedule_bp(db_session):
                 JOIN
                     team_games tg3 ON tg1.team_id = tg3.team_id AND tg3.rn = tg1.rn + 2
                 WHERE
-                    tg3.game_date - tg1.game_date <= 3  -- Corrected condition
+                    tg3.game_date - tg1.game_date <= 3
             ),
             non_overlapping_sequences AS (
                 SELECT
@@ -266,11 +273,8 @@ def create_schedule_bp(db_session):
             ORDER BY
                 three_in_four_count DESC,
                 team_name;
+        """), {'start_date': start_date, 'end_date': end_date})
 
-  
-
-                                         """), {'start_date': start_date, 'end_date': end_date})
-        
         return jsonify([dict(row) for row in result]), 200
 
     return schedule_bp

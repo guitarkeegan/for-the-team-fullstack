@@ -39,13 +39,30 @@ export default function TeamSchedule() {
     const fetchGames = async () => {
       const teamId = process.env.NEXT_PUBLIC_TEAM_ID;
       const year = new Date().getFullYear();
-      const response = await fetch(`/api/schedule/past-games/${teamId}/${year}`);
-      const data = await response.json();
-      setGames(data);
+      try {
+        const response = await fetch(`/api/schedule/past-games/${teamId}/${year}`, {
+          credentials: 'include', // This is important for including cookies
+        });
+        
+        if (!response.ok) {
+          if (response.status === 401) {
+            // Unauthorized, redirect to login
+            router.push('/login');
+            return;
+          }
+          throw new Error('Failed to fetch games');
+        }
+        
+        const data = await response.json();
+        setGames(data);
+      } catch (error) {
+        console.error('Error fetching games:', error);
+        // Handle error (e.g., show error message to user)
+      }
     };
 
     fetchGames();
-  }, []);
+  }, [router]);
 
   const groupedGames = groupGamesByMonth(games);
 

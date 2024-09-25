@@ -1,48 +1,80 @@
 "use client";
 import { useRouter } from "next/navigation";    
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
 export default function Login() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [csrfToken, setCsrfToken] = useState("");
   const router = useRouter();
 
-  // TODO: implement auth!
-  const user1 = {
-    username: "user_one",
-    password: "password123",
-  };
+  useEffect(() => {
+    fetch('/api/get-csrf-token', {
+      credentials: 'include',
+    })
+      .then(response => response.json())
+      .then(data => setCsrfToken(data.csrf_token))
+      .catch(error => console.error('Error fetching CSRF token:', error));
+  }, []);
 
-  const user2 = {
-    username: "user_two",
-    password: "123password",
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (username === user1.username && password === user1.password) {
-      router.replace("/coach-dash");
-    } else if (username === user2.username && password === user2.password) {
-      router.replace("/medical-dash");
-    } else {
+    setErrorMsg("");
+
+    try {
+      const loginResponse = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify({ email, password }),
+        credentials: 'include',
+      });
+
+      if (loginResponse.ok) {
+        // Fetch user info after successful login
+        const userInfoResponse = await fetch('/api/user-info', {
+          credentials: 'include',
+        });
+
+        if (userInfoResponse.ok) {
+          const userData = await userInfoResponse.json();
+          if (userData.roles.includes('coach')) {
+            router.replace("/coach-dash");
+          } else if (userData.roles.includes('medical')) {
+            router.replace("/medical-dash");
+          } else {
+            setErrorMsg("Unknown user role");
+          }
+        } else {
+          setErrorMsg("Failed to fetch user information");
+        }
+      } else {
         setErrorMsg("Invalid email or password");
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setErrorMsg("An error occurred. Please try again.");
     }
   }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-        {errorMsg && <p className="text-red-500">{errorMsg}</p>}
+      {errorMsg && <p className="text-red-500">{errorMsg}</p>}
       <div>
         <label
-          htmlFor="username"
+          htmlFor="email"
           className="block text-sm font-medium text-gray-700"
         >
-          Username
+          Email
         </label>
         <input
-          type="text"
-          id="username"
-          name="username"
-          onChange={(e) => setUsername(e.target.value)}
+          type="email"
+          id="email"
+          name="email"
+          onChange={(e) => setEmail(e.target.value)}
           required
           className="mt-1 block w-full rounded-md border-gray-300 shadow-md focus:border-teamBlue focus:ring focus:ring-teamBlue focus:ring-opacity-50 text-gray-800 font-sans"
         />

@@ -39,7 +39,9 @@ export default function TeamSchedule() {
     const fetchGames = async () => {
       const teamId = process.env.NEXT_PUBLIC_TEAM_ID;
       const year = new Date().getFullYear();
-      const response = await fetch(`/api/schedule/past-games/${teamId}/${year}`);
+      const response = await fetch(`/api/schedule/past-games/${teamId}/${year}`, {
+        credentials: 'include',
+      });
       const data = await response.json();
       setGames(data);
     };

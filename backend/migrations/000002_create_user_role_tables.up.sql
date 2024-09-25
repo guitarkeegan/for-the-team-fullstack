@@ -14,12 +14,12 @@ CREATE TABLE users (
     active BOOLEAN DEFAULT TRUE,
     last_login_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     current_login_at TIMESTAMP,
-    last_login_ip TEXT NOT NULL,
-    current_login_ip TEXT NOT NULL,
+    last_login_ip TEXT,
+    current_login_ip TEXT,
     login_count INTEGER DEFAULT 0,
     fs_uniquifier TEXT UNIQUE NOT NULL,
     confirmed_at TIMESTAMP,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE user_roles (

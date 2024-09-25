@@ -31,17 +31,20 @@ back/down:
 	$(DOCKER_COMPOSE) $(BACKEND_PROFILE) down -v
 
 # Fullstack targets
-.PHONY: fullstack/up fullstack/up/build
+.PHONY: fullstack/up fullstack/up/build fullstack/down
 fullstack/up:
 	$(DOCKER_COMPOSE) $(BACKEND_PROFILE) $(FRONTEND_PROFILE) up
 
 fullstack/up/build:
-	$(DOCKER_COMPOSE) $(BACKEND_PROFILE) $(FRONTEND_PROFILE) up
+	$(DOCKER_COMPOSE) $(BACKEND_PROFILE) $(FRONTEND_PROFILE) up --build
+
+fullstack/down:
+	$(DOCKER_COMPOSE) $(BACKEND_PROFILE) $(FRONTEND_PROFILE) down -v
 
 # Maintenance targets
 .PHONY: prune/all
 prune/all:
-	docker image prune -f
+	docker image prune -f 
 	docker builder prune -f
 	@echo "Pruned images and builder"
 	@echo "Current processes:"

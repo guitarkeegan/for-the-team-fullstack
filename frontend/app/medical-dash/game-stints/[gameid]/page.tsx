@@ -43,7 +43,9 @@ const GameStintsPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`/api/lineups/wide?game_id=${gameId}&team_id=${teamId}`);
+      const response = await fetch(`/api/lineups/wide?game_id=${gameId}&team_id=${teamId}`, {
+        credentials: 'include',
+      });
       const data: { lineups: Lineup[] } = await response.json();
       const uniquePlayers = new Map<number, Player>();
       data.lineups.forEach((lineup: Lineup) => {
